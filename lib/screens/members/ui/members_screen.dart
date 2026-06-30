@@ -235,7 +235,7 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          member.nativePlace ?? 'N/A',
+                          member.nativePlace ?? member.postName ?? 'N/A',
                           style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -378,13 +378,18 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                                   color: Color(0xFF333333),
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _buildHeaderChip(Icons.work, (member.occupation ?? 'N/A').split(',').first),
-                                ],
-                              ),
+                              if (member.occupation != null &&
+                                  member.occupation!.trim().isNotEmpty &&
+                                  member.occupation!.trim().toLowerCase() != 'n/a' &&
+                                  member.occupation!.trim() != member.mobile.trim()) ...[
+                                const SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _buildHeaderChip(Icons.work, member.occupation!.split(',').first),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -435,13 +440,18 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                             color: Color(0xFF333333),
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildHeaderChip(Icons.work, (member.occupation ?? 'N/A').split(',').first),
-                          ],
-                        ),
+                        if (member.occupation != null &&
+                            member.occupation!.trim().isNotEmpty &&
+                            member.occupation!.trim().toLowerCase() != 'n/a' &&
+                            member.occupation!.trim() != member.mobile.trim()) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildHeaderChip(Icons.work, member.occupation!.split(',').first),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -457,45 +467,17 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                         Icons.person,
                         [
                           _buildDetailRow(Icons.person, 'Full Name', member.name),
-                          _buildDetailRow(Icons.family_restroom, "Father's Name", member.fatherName ?? 'N/A'),
-                          _buildDetailRow(Icons.home, 'Native Place', member.nativePlace ?? 'N/A'),
+                          _buildDetailRow(Icons.family_restroom, "Father's Name", member.fatherName),
+                          _buildDetailRow(Icons.home, 'Native Place', member.nativePlace),
+                          _buildDetailRow(Icons.place, 'Post Name', member.postName),
                           _buildDetailRow(Icons.cake, 'Date of Birth', _formatDate(member.dateOfBirth)),
-                          _buildDetailRow(Icons.school, 'Education', member.education ?? 'N/A'),
-                          _buildDetailRow(Icons.work, 'Occupation', member.occupation ?? 'N/A'),
-                          _buildDetailRow(Icons.bloodtype, 'Blood Group', member.bloodGroup ?? 'N/A'),
-                          _buildDetailRow(Icons.interests, 'Hobbies', member.hobbies ?? 'N/A'),
-                        ],
+                          _buildDetailRow(Icons.school, 'Education', member.education),
+                          _buildDetailRow(Icons.work, 'Occupation', (member.occupation?.trim() == member.mobile.trim()) ? null : member.occupation),
+                          _buildDetailRow(Icons.bloodtype, 'Blood Group', member.bloodGroup),
+                          _buildDetailRow(Icons.interests, 'Hobbies', member.hobbies),
+                        ].whereType<Widget>().toList(),
                       ),
                       const SizedBox(height: 16),
-                      
-                      // Spouse Information
-                      Builder(
-                        builder: (context) {
-                          final spouseList = member.familyMembers.where((f) => f.relationship?.toLowerCase() == 'spouse' || f.relationship?.toLowerCase() == 'wife' || f.relationship?.toLowerCase() == 'husband').toList();
-                          final spouse = spouseList.isNotEmpty ? spouseList.first : null;
-                          
-                          if (spouse == null) return const SizedBox.shrink();
-                          
-                          return Column(
-                            children: [
-                              _buildSectionCard(
-                                'Spouse Information',
-                                Icons.favorite,
-                                [
-                                  _buildDetailRow(Icons.person, 'Spouse Name', spouse.name),
-                                  _buildDetailRow(Icons.cake, 'Date of Birth', _formatDate(spouse.dateOfBirth)),
-                                  _buildDetailRow(Icons.school, 'Education', spouse.education ?? 'N/A'),
-                                  _buildDetailRow(Icons.work, 'Occupation', spouse.occupation ?? 'N/A'),
-                                  _buildDetailRow(Icons.bloodtype, 'Blood Group', spouse.bloodGroup ?? 'N/A'),
-                                  _buildDetailRow(Icons.interests, 'Hobbies', spouse.hobbies ?? 'N/A'),
-                                  _buildDetailRow(Icons.celebration, 'Wedding Date', _formatDate(spouse.anniversaryDate)),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          );
-                        }
-                      ),
                       
                       // Contact Details
                       Builder(
@@ -509,8 +491,8 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                               _buildDetailRow(Icons.phone_android, 'Mobile (Self)', member.mobile),
                               if (spouse?.mobile != null && spouse!.mobile!.isNotEmpty)
                                 _buildDetailRow(Icons.phone_android, 'Mobile (Spouse)', spouse.mobile!),
-                              _buildDetailRow(Icons.email, 'Email', member.email ?? 'N/A'),
-                            ],
+                              _buildDetailRow(Icons.email, 'Email', member.email),
+                            ].whereType<Widget>().toList(),
                           );
                         }
                       ),
@@ -521,20 +503,82 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                         'Address Details',
                         Icons.location_on,
                         [
-                          _buildDetailRow(Icons.business, 'Office Address', member.officeAddress ?? 'N/A'),
-                          _buildDetailRow(Icons.home, 'Residential Address', '${member.streetRoad ?? ''} ${member.city ?? ''} ${member.pincode ?? ''}'.trim().isEmpty ? 'N/A' : '${member.streetRoad ?? ''} ${member.city ?? ''} ${member.pincode ?? ''}'),
-                        ],
+                          _buildDetailRow(Icons.business, 'Office Address', member.officeAddress),
+                          _buildDetailRow(Icons.home, 'Residential Address', '${member.streetRoad ?? ''} ${member.city ?? ''} ${member.pincode ?? ''}'.trim().isEmpty ? null : '${member.streetRoad ?? ''} ${member.city ?? ''} ${member.pincode ?? ''}'),
+                        ].whereType<Widget>().toList(),
                       ),
                       const SizedBox(height: 16),
                       
-                      // Children Details
-                      Builder(
-                        builder: (context) {
-                          final childrenList = member.familyMembers.where((f) => ['son', 'daughter', 'child'].contains(f.relationship?.toLowerCase())).toList();
-                          if (childrenList.isEmpty) return const SizedBox.shrink();
-                          return _buildChildrenSection(childrenList);
-                        }
-                      ),
+                      // Family Members Section
+                      if (member.familyMembers.isNotEmpty) ...[
+                        _buildSectionCard(
+                          'Family Members',
+                          Icons.groups,
+                          member.familyMembers.map((fm) {
+                            final List<Widget> rows = [];
+
+                            void addRow(String label, String? value, IconData icon) {
+                              final row = _buildDetailRow(icon, label, value);
+                              if (row != null) {
+                                rows.add(row);
+                              }
+                            }
+
+                            // Mandatory name
+                            final nameRow = _buildDetailRow(Icons.person, 'Name', fm.name);
+                            if (nameRow != null) {
+                              rows.add(nameRow);
+                            }
+
+                            addRow('Relationship', fm.relationship, Icons.group);
+                            addRow('Mobile', fm.mobile, Icons.phone);
+                            addRow('Gender', fm.gender, Icons.wc);
+                            addRow('Gotra', fm.gotra, Icons.account_tree);
+                            addRow('Education', fm.education, Icons.school);
+                            if (fm.occupation?.trim() != fm.mobile?.trim()) {
+                              addRow('Occupation', fm.occupation, Icons.work);
+                            }
+                            addRow('Blood Group', fm.bloodGroup, Icons.bloodtype);
+                            addRow('Hobbies', fm.hobbies, Icons.palette);
+                            addRow('Native Place', fm.nativePlace, Icons.place);
+                            addRow('Notes', fm.notes, Icons.note);
+
+                            if (fm.dateOfBirth != null) {
+                              final dobRow = _buildDetailRow(
+                                Icons.cake,
+                                'Date of Birth',
+                                _formatDate(fm.dateOfBirth),
+                              );
+                              if (dobRow != null) {
+                                rows.add(dobRow);
+                              }
+                            }
+
+                            if (fm.anniversaryDate != null) {
+                              final annRow = _buildDetailRow(
+                                Icons.favorite,
+                                'Anniversary',
+                                _formatDate(fm.anniversaryDate),
+                              );
+                              if (annRow != null) {
+                                rows.add(annRow);
+                              }
+                            }
+
+                            // If no valid fields → render nothing
+                            if (rows.isEmpty) return const SizedBox.shrink();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ...rows,
+                                const Divider(height: 24),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       
                       const SizedBox(height: 100),
                     ],
@@ -650,6 +694,7 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
   }
 
   Widget _buildSectionCard(String title, IconData icon, List<Widget> children) {
+    if (children.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -688,125 +733,12 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
     );
   }
 
-  Widget _buildChildrenSection(List<FamilyMember> children) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MMPApp.borderBrown.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: MMPApp.orange.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.child_care, color: MMPApp.orange, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Children (${children.length})',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: MMPApp.maroon,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children.asMap().entries.map((entry) {
-            final index = entry.key;
-            final child = entry.value;
-            final isMale = child.gender?.toLowerCase() == 'male';
-            return Container(
-              margin: EdgeInsets.only(bottom: index < children.length - 1 ? 12 : 0),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: MMPApp.borderBrown.withValues(alpha: 0.15)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: isMale 
-                        ? Colors.blue.withValues(alpha: 0.15)
-                        : Colors.pink.withValues(alpha: 0.15),
-                    child: Icon(
-                      isMale ? Icons.boy : Icons.girl,
-                      color: isMale ? Colors.blue : Colors.pink,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          child.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Text(
-                              child.gender ?? 'N/A',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Text(' • ', style: TextStyle(color: Colors.grey[400])),
-                            Text(
-                              _formatDate(child.dateOfBirth),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (child.dateOfBirth != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: MMPApp.orange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_calculateAge(child.dateOfBirth!)} yrs',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: MMPApp.orange,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
+
+  Widget? _buildDetailRow(IconData icon, String label, String? value) {
+    if (value == null || value.trim().isEmpty || value.trim().toLowerCase() == 'n/a') {
+      return null;
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -848,16 +780,6 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
-
-  int _calculateAge(DateTime birthDate) {
-    final now = DateTime.now();
-    int age = now.year - birthDate.year;
-    if (now.month < birthDate.month || 
-        (now.month == birthDate.month && now.day < birthDate.day)) {
-      age--;
-    }
-    return age;
   }
 
   void _showFilterSheet() {

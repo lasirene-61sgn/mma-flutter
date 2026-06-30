@@ -8,14 +8,12 @@ import 'package:mmp_official/service/route/route_name.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 
+import 'package:mmp_official/screens/profile/model/family_member_model.dart';
+
 // Dummy classes for the ones missing from the user snippet
 class AboutUsModel {
   AboutUsModel();
   factory AboutUsModel.fromJson(Map<String, dynamic> json) => AboutUsModel();
-}
-class FamilyMember {
-  FamilyMember();
-  factory FamilyMember.fromJson(Map<String, dynamic> json) => FamilyMember();
 }
 
 class ProfileState {
@@ -191,6 +189,76 @@ print("Image:$profileImage");
       Toaster.showError("Error: ${e.toString()}");
     }
   }
+  Future<void> addFamily(
+    BuildContext context,
+    File? profileImage,
+    Map<String, dynamic> payload,
+  ) async {
+    state = state.copyWith(isSaving: true, error: null);
+
+    try {
+      final response = await ApiClient().requestWithFiles(
+        endpoint: 'api/customer/family-members',
+        method: 'POST',
+        fields: payload,
+        files: {
+          if (profileImage != null) 'image': profileImage,
+        },
+      );
+
+      if (response['status'] == 1 || response['status'] == 'success') {
+        await loadMember();
+        state = state.copyWith(isSaving: false, error: null);
+        Toaster.showSuccess(response['message']?.toString() ?? "Family member added successfully");
+      } else {
+        state = state.copyWith(isSaving: false);
+        Toaster.showError(response['message']?.toString() ?? "Failed to add family member");
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isSaving: false,
+        error: 'Failed to save family member',
+      );
+      Toaster.showError("Error: ${e.toString()}");
+    }
+  }
+
+  Future<void> updateFamily(
+    BuildContext context,
+    String memberId,
+    File? profileImage,
+    Map<String, dynamic> payload,
+  ) async {
+    state = state.copyWith(isSaving: true, error: null);
+
+    try {
+      final response = await ApiClient().requestWithFiles(
+        endpoint: 'api/customer/family-members/$memberId',
+        method: 'PUT',
+        fields: payload,
+        files: {
+          if (profileImage != null) 'image': profileImage,
+        },
+      );
+
+      if (response['status'] == 1 || response['status'] == 'success') {
+        await loadMember();
+        state = state.copyWith(isSaving: false, error: null);
+        Toaster.showSuccess(response['message']?.toString() ?? "Family member updated successfully");
+      } else {
+        state = state.copyWith(isSaving: false);
+        Toaster.showError(response['message']?.toString() ?? "Failed to update family member");
+      }
+    } catch (e) {
+      debugPrint("UPDATE FAMILY ERROR: $e");
+      state = state.copyWith(
+        isSaving: false,
+        error: 'Failed to update family member',
+      );
+      Toaster.showError("Error: ${e.toString()}");
+    }
+  }
+
   Future<void> deleteAccount() async {
     state = state.copyWith(isDeleting: true);
     try {

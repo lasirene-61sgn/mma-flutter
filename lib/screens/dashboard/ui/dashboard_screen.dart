@@ -11,6 +11,7 @@ import '../../team/ui/team_screen.dart';
 import '../../members/ui/members_screen.dart';
 import '../../news/ui/news_screen.dart';
 import '../../profile/ui/profile_screen.dart';
+import '../../profile/ui/family_details_screen.dart';
 import '../../auth/login/riverpod/login_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -211,6 +212,17 @@ class DashboardScreenState extends ConsumerState<DashboardScreen> {
           //   },
           // ),
           // const Divider(),
+          ListTile(
+            leading: const Icon(Icons.family_restroom, color: MMPApp.maroon),
+            title: const Text('Family Details'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FamilyDetailsScreen()),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined, color: MMPApp.maroon),
             title: const Text('Gallery'),

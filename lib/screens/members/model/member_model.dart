@@ -58,7 +58,7 @@ class FamilyMember {
       name: json['name'] ?? '',
       image: json['image'],
       relationship: json['relationship'],
-      mobile: json['mobile'],
+      mobile: json['mobile'] ?? json['phone'] ,
       dateOfBirth: _parseDate(json['date_of_birth']),
       anniversaryDate: _parseDate(json['anniversary_date']),
       gotra: json['gotra'],
@@ -113,6 +113,7 @@ class Member {
   final String? bloodGroup;
   final String? hobbies;
   final String? nativePlace;
+  final String? postName;
 
   final bool isPasswordSet;
   final String status;
@@ -160,6 +161,7 @@ class Member {
     this.bloodGroup,
     this.hobbies,
     this.nativePlace,
+    this.postName,
     required this.isPasswordSet,
     required this.status,
     this.otpExpiresAt,
@@ -200,7 +202,7 @@ class Member {
       address2: json['address2'],
       city: json['city'],
       pincode: json['pincode'],
-      mobile: json['mobile'] ?? '',
+      mobile: json['mobile'] ?? json['phone'] ?? '',
       whatsapp: json['whatsapp'],
       email: json['email'],
       age: json['age'],
@@ -208,12 +210,13 @@ class Member {
       businessType: json['business_type'],
       businessName: json['business_name'],
       productService: json['product_service'],
-      officeAddress: json['office_address'],
+      officeAddress: json['office_address'] ,
       education: json['education'],
-      occupation: json['occupation'],
+      occupation: json['occupation'] ?? json['phone'],
       bloodGroup: json['blood_group'],
       hobbies: json['hobbies'],
       nativePlace: json['native_place'],
+      postName: json['post_name'],
       isPasswordSet: _parseBool(json['is_password_set']),
       status: json['status'] ?? '',
       otpExpiresAt: _parseDate(json['otp_expires_at']),

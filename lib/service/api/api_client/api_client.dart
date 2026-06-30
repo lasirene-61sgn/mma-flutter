@@ -11,8 +11,8 @@ import '../../toaster.dart';
 
 
 class ApiClient {
-  static const String baseUrl = "https://overlabor-unmixed-doing.ngrok-free.dev/";
-  // static const String baseUrl =  "https://mmp.lasirene.xyz/";
+  // static const String baseUrl = "https://overlabor-unmixed-doing.ngrok-free.dev/";
+  static const String baseUrl =  "https://mmp.lasirene.xyz/";
   late final Dio _dio;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
